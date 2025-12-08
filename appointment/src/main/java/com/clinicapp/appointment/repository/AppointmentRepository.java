@@ -1,0 +1,26 @@
+package com.clinicapp.appointment.repository;
+
+import com.clinicapp.appointment.model.Appointment;
+import com.clinicapp.appointment.model.Doctor;
+
+import ch.qos.logback.core.status.Status;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+
+public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
+
+    // Finding existing appointment by doctor and appointment time
+    Optional<Appointment> findByDoctorIdAndAppointmentTime(Long doctorId, LocalDateTime appointmentTime);
+
+    List<Appointment> findByStatus(com.clinicapp.appointment.model.Status scheduled);
+
+    Optional<Doctor> findByDoctorIdAndAppointmentTime(Doctor doctor, LocalDateTime newAppointmentTime);
+
+    Appointment save(Appointment appointment);
+
+    Appointment findByStatus(Status status);
+}
