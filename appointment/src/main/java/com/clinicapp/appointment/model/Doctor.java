@@ -2,20 +2,27 @@ package com.clinicapp.appointment.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalTime;
 
 @Entity
-
 public class Doctor {
    
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
 
+    @Setter
+    @Getter
     @NotBlank(message = "Doctor name is mandatory")
     private String name;
 
+    @Setter
+    @Getter
     @NotBlank(message = "Department is mandatory")
     private String department;
 
@@ -25,40 +32,21 @@ public class Doctor {
         this.name = name;
         this.department = department;
     }
-    public Long getId() {
-        return id;
-    }       
-    public String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-    public String getDepartment() {
-        return department;
-    }
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    public LocalTime getAvailableFrom() {
-       
-        throw new UnsupportedOperationException("Unimplemented method 'getAvailableFrom'");
-    }
 
 
 
     private LocalTime availableFrom;
-    private LocalTime availableTo;
-    public LocalTime getAvailableTo() {
-        return availableTo;
-    }
-    public void setAvailableTo(LocalTime availableTo) {
-        this.availableTo = availableTo;
+    public LocalTime getAvailableFrom() {
+       
+        return availableFrom;
     }
     public void setAvailableFrom(LocalTime availableFrom) {
         this.availableFrom = availableFrom;
     }
+
+    @Getter
+    @Setter
+    private LocalTime availableTo;
 
 
 }

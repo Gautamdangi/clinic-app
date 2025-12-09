@@ -14,13 +14,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 
     // Finding existing appointment by doctor and appointment time
-    Optional<Appointment> findByDoctorIdAndAppointmentTime(Long doctorId, LocalDateTime appointmentTime);
+    //Optional<Appointment> findByDoctorIdAndAppointmentTime(Long doctorId, LocalDateTime appointmentTime);
+    Optional<Appointment> findByDoctorAndAppointmentTime(Doctor doctor, LocalDateTime appointmentTime);
 
-    List<Appointment> findByStatus(com.clinicapp.appointment.model.Status scheduled);
+    List<Appointment> findByStatus(Status status);
 
-    Optional<Doctor> findByDoctorIdAndAppointmentTime(Doctor doctor, LocalDateTime newAppointmentTime);
+  //  Optional<Doctor> findByDoctorIdAndAppointmentTime(Doctor doctor, LocalDateTime newAppointmentTime);
 
     Appointment save(Appointment appointment);
 
-    Appointment findByStatus(Status status);
+    Optional<Object> findByDoctorIdAndAppointmentTime(Long doctorId, LocalDateTime start);
+
+    //Appointment findByStatus(Status status);
 }

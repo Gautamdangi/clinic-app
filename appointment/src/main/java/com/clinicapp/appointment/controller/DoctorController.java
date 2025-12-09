@@ -15,12 +15,12 @@ public class DoctorController {
     @Autowired
     private DoctorRepository doctorRepository;
 
-    @PostMapping
+    @PostMapping("/create")
    public ResponseEntity<?> createDoctor(@RequestBody Doctor doctor) {
         return ResponseEntity.ok(doctorRepository.save(doctor)); // ResponseEntity.ok(repo.save(doctor));
     }
 
-    @GetMapping
+    @GetMapping("/getdoctors")
     public List<Doctor> getAllDoctors() {
         return doctorRepository.findAll();
     }
