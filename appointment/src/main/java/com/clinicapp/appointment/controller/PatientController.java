@@ -20,13 +20,13 @@ public class PatientController {
     @Autowired
     private PatientRepository patientRepository;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createPatient(@RequestBody Patient patient) {
         return ResponseEntity.ok(patientRepository.save(patient));
         
     }
 
-    @GetMapping
+    @GetMapping("/getAll")
        public List<Patient> getAllPatients() {
         return patientRepository.findAll();
     }

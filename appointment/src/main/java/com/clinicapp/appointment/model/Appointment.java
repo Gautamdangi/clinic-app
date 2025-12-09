@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Setter;
 
 
 @Entity
@@ -13,17 +14,21 @@ public class Appointment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @ManyToOne
     @JoinColumn(name = "patient_id",nullable = false)
     private Patient patient;
 
+    @Setter
     @ManyToOne
     @JoinColumn(name = "doctor_id",nullable = false)
     private Doctor doctor;
     
+    @Setter
     @NotNull
     private LocalDateTime appointmentTime;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     private Status status;// e.g. "scheduled", "cancelled", "completed"
 
@@ -46,29 +51,17 @@ public class Appointment {
         return patient;
     }
 
-    public void setPatient(Patient patient) {
-        this.patient = patient;
-    }
-
     public Doctor getDoctor() {
         return doctor;
     }
-    public void setDoctor(Doctor doctor) {
-        this.doctor = doctor;
-    }
+
     public LocalDateTime getAppointmentTime() {
         return appointmentTime;
-    }
-    public void setAppointmentTime(LocalDateTime appointmentTime) {
-        this.appointmentTime = appointmentTime;
     }
 
     public Status getStatus() {
         return status;
     }
-    public void setStatus(Status status) {
-        this.status = status;
-    }
 
-    
+
 }

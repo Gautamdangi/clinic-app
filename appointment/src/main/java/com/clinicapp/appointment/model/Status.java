@@ -4,7 +4,7 @@ package com.clinicapp.appointment.model;
 
 public enum Status{
 
-    SHEDULED,
+    SCHEDULED,
     COMPLETED,      
-    CANCELED, SCHEDULED
+    CANCELED
 }

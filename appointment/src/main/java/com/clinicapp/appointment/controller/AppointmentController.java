@@ -1,5 +1,8 @@
 package com.clinicapp.appointment.controller;
 
+
+import com.clinicapp.appointment.dto.AppointmentRequest;
+import com.clinicapp.appointment.dto.RescheduleRequest;
 import com.clinicapp.appointment.model.Appointment;
 import com.clinicapp.appointment.model.Doctor;
 import com.clinicapp.appointment.model.Patient;
@@ -35,27 +38,24 @@ private AppointmentRepository appointmentRepository;
 
    @PostMapping("/create")
 public ResponseEntity<?> createAppointment(
-    @RequestParam long doctorId,
-    @RequestParam long patientId,
-    @RequestParam String status,
-    @RequestParam LocalDateTime appointmentTime
-) 
+           @RequestBody AppointmentRequest request
+           )
     {
 
     //  Validation is patient and doctor exist
-    Doctor doctor = doctorRepository.findById(doctorId).orElse(null);
+    Doctor doctor = doctorRepository.findById(request.getDoctorId()).orElse(null);
     if (doctor==null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Doctor not found");
     }
 
     
-    Patient patient = patientRepository.findById(patientId).orElse(null);
+    Patient patient = patientRepository.findById(request.getPatientId()).orElse(null);
     if (patient== null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Patient not found");
     }
 
     //  Validation is appointment time is within doctor's working hours
-
+    LocalDateTime appointmentTime = request.getAppointmentTime();
     LocalTime appointmentTimeOnly = appointmentTime.toLocalTime();
 
     if (appointmentTimeOnly.isBefore(doctor.getAvailableFrom()) || appointmentTimeOnly.isAfter(doctor.getAvailableTo())) {
@@ -64,7 +64,7 @@ public ResponseEntity<?> createAppointment(
     }
 
     //  Checking for double booking
-    Boolean exists = appointmentRepository.findByDoctorIdAndAppointmentTime(
+    Boolean exists = appointmentRepository.findByDoctorAndAppointmentTime(
             doctor, appointmentTime).isPresent();
 
     if (exists) {
@@ -72,7 +72,7 @@ public ResponseEntity<?> createAppointment(
                 .body(Map.of("message",
                             "Slot already booked",
                             "suggestions",
-                            getSuggestedSlots(doctorId, appointmentTime))
+                            getSuggestedSlots(request.getDoctorId(),  appointmentTime))
                         );
     }
 
@@ -90,13 +90,14 @@ public ResponseEntity<?> createAppointment(
 // Reschedule appointment
    @PutMapping("/reschedule/{id}")
 public ResponseEntity<?> rescheduleAppointment(
-    @PathVariable Long id,
-    @RequestParam LocalDateTime newAppointmentTime
-) {
+           @PathVariable Long id,
+           @RequestBody RescheduleRequest rescheduleRequest
+           ) {
     Appointment appointment = (Appointment) appointmentRepository.findById(id).orElse(null);
     if (appointment == null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Appointment not found");
-    }    
+    }
+    LocalDateTime newAppointmentTime = rescheduleRequest.getNewAppointmentTime();
     Doctor doctor = appointment.getDoctor();
     LocalTime newTime = newAppointmentTime.toLocalTime();
     
@@ -104,7 +105,7 @@ public ResponseEntity<?> rescheduleAppointment(
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("New appointment time is outside the doctor’s working hours");
     }
-    Boolean exists = appointmentRepository.findByDoctorIdAndAppointmentTime(
+    Boolean exists = appointmentRepository.findByDoctorAndAppointmentTime(
             doctor, newAppointmentTime).isPresent();
     if (exists) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -126,8 +127,8 @@ public ResponseEntity<?> rescheduleAppointment(
 
 
     // cancel request 
-
-    public ResponseEntity<?> cancelAppointment(@PathVariable @org.springframework.lang.NonNull Long id) {
+    @PutMapping("/cancel/{id}")
+    public ResponseEntity<?> cancelAppointment(@PathVariable  Long id) {
      Appointment appointment = (Appointment) appointmentRepository.findById(id).orElse(null);      
         if (appointment == null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Appointment not found");
@@ -143,6 +144,7 @@ public ResponseEntity<?> rescheduleAppointment(
 
 
     // suggested slots every 15 minutes within next 2 hours
+    @GetMapping("/slotsuggestion")
     private List<LocalDateTime> getSuggestedSlots(Long doctorId, LocalDateTime requestedTime) {
     List<LocalDateTime> suggestions = new ArrayList<>();    
         
