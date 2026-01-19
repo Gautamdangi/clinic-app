@@ -7,6 +7,7 @@ import lombok.*;
 
 @Entity
 @Data
+@Table(name = "Patients")
 @NoArgsConstructor // Lombok's @NoArgsConstructor generates the default constructor
 @AllArgsConstructor
 public class Patient {

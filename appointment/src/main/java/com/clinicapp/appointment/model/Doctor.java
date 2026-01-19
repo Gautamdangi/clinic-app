@@ -2,50 +2,48 @@ package com.clinicapp.appointment.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
 
+
 @Entity
+@Data
+@Table(name = "Doctors")
+@NoArgsConstructor
+@AllArgsConstructor
 public class Doctor {
    
-    @Getter
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
 
-    @Setter
-    @Getter
+    @Column(name = "name")
     @NotBlank(message = "Doctor name is mandatory")
     private String name;
 
-    @Setter
-    @Getter
-    @NotBlank(message = "Department is mandatory")
-    private String department;
 
-    public Doctor() {}// is this needed? // default constructor
+    @Column(name = "specialization")
+    @NotBlank(message = "Specialization is mandatory")
+    private String specialization;
 
-    public Doctor(String name, String department) { // constructor
-        this.name = name;
-        this.department = department;
-    }
+    private String phone;
 
+    private String email;
+
+//    public Doctor() {}// is this needed? // default constructor
 
 
+
+
+    @Column(name = "AvailableFrom")
     private LocalTime availableFrom;
-    public LocalTime getAvailableFrom() {
-       
-        return availableFrom;
-    }
-    public void setAvailableFrom(LocalTime availableFrom) {
-        this.availableFrom = availableFrom;
-    }
 
-    @Getter
-    @Setter
+    @Column(name = "AvailableTo")
     private LocalTime availableTo;
 
 

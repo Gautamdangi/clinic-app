@@ -10,6 +10,8 @@ import com.clinicapp.appointment.model.Status;
 import com.clinicapp.appointment.repository.PatientRepository;
 import com.clinicapp.appointment.repository.DoctorRepository;
 import com.clinicapp.appointment.repository.AppointmentRepository;
+import com.clinicapp.appointment.service.EmailService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,22 +27,18 @@ public class AppointmentController {
 
     @Autowired
 private PatientRepository patientRepository;
-
 @Autowired
 private DoctorRepository doctorRepository;
-
 @Autowired
 private AppointmentRepository appointmentRepository; 
+@Autowired
+   private EmailService emailService;
 
-    
+
 
 // create appointment 
-
    @PostMapping("/create")
-public ResponseEntity<?> createAppointment(
-           @RequestBody AppointmentRequest request
-           )
-    {
+    public ResponseEntity<?> createAppointment(@RequestBody AppointmentRequest request){
 
     //  Validation is patient and doctor exist
     Doctor doctor = doctorRepository.findById(request.getDoctorId()).orElse(null);
@@ -64,8 +62,10 @@ public ResponseEntity<?> createAppointment(
     }
 
     //  Checking for double booking
-    Boolean exists = appointmentRepository.findByDoctorAndAppointmentTime(
+    boolean exists = appointmentRepository.findByDoctorAndAppointmentTime(
             doctor, appointmentTime).isPresent();
+
+
 
     if (exists) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -82,7 +82,16 @@ public ResponseEntity<?> createAppointment(
     appointment.setDoctor(doctor);
     appointment.setAppointmentTime(appointmentTime);
     Appointment saved = appointmentRepository.save(appointment);
+
+       //send a mail appointment details
+    emailService.sendAppointmentEmail(saved);
+
     return ResponseEntity.ok(saved);
+
+
+
+
+
 }
 
 
@@ -93,7 +102,7 @@ public ResponseEntity<?> rescheduleAppointment(
            @PathVariable Long id,
            @RequestBody RescheduleRequest rescheduleRequest
            ) {
-    Appointment appointment = (Appointment) appointmentRepository.findById(id).orElse(null);
+    Appointment appointment = appointmentRepository.findById(id).orElse(null);
     if (appointment == null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Appointment not found");
     }
@@ -105,7 +114,7 @@ public ResponseEntity<?> rescheduleAppointment(
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body("New appointment time is outside the doctor’s working hours");
     }
-    Boolean exists = appointmentRepository.findByDoctorAndAppointmentTime(
+    boolean exists = appointmentRepository.findByDoctorAndAppointmentTime(
             doctor, newAppointmentTime).isPresent();
     if (exists) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -117,7 +126,10 @@ public ResponseEntity<?> rescheduleAppointment(
                     }
                         appointment.setAppointmentTime(newAppointmentTime);
     Appointment saved = appointmentRepository.save(appointment);
-                    
+
+    // rescheduled mail
+       emailService.sendAppointmentEmail(saved);
+
     return ResponseEntity.ok(saved);
     
     }
@@ -127,15 +139,19 @@ public ResponseEntity<?> rescheduleAppointment(
 
 
     // cancel request 
-    @PutMapping("/cancel/{id}")
+    @DeleteMapping("/cancel/{id}")
     public ResponseEntity<?> cancelAppointment(@PathVariable  Long id) {
-     Appointment appointment = (Appointment) appointmentRepository.findById(id).orElse(null);      
+     Appointment appointment =  appointmentRepository.findById(id).orElse(null);
         if (appointment == null) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Appointment not found");
         }
 
     appointment.setStatus(Status.CANCELED);
     Appointment saved = appointmentRepository.save(appointment);
+
+    // send mail for canceled request
+        emailService.sendAppointmentEmail(saved);
+
     return ResponseEntity.ok(saved);
 
     }
@@ -158,7 +174,9 @@ public ResponseEntity<?> rescheduleAppointment(
         }
         start = start.plusMinutes(15);
     }
+    // sent mail for suggested slots
     return suggestions;
     }
+
 
 }

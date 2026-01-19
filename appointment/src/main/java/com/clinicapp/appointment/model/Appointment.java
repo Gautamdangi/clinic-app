@@ -30,7 +30,7 @@ public class Appointment {
 
     @Setter
     @Enumerated(EnumType.STRING)
-    private Status status;// e.g. "scheduled", "cancelled", "completed"
+    private Status status;// e.g. "scheduled", "canceled", "completed"
 
    
 
