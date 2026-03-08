@@ -29,7 +29,7 @@ public class JwtUtil {
 
         return Jwts.builder()
                 .setSubject(username)
-                .claim("Role",role)
+                .claim("role",role.name())
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -48,5 +48,13 @@ public Boolean validateToken(String token){
         }catch (JwtException| IllegalArgumentException e){
             return false;
         }
+
 }
+    public String getRoleFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey()).build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
 }

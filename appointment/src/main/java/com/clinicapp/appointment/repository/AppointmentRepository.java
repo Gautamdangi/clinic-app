@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.http.ResponseEntity;
 
 
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
@@ -24,6 +25,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     Appointment save(Appointment appointment);
 
     Optional<Object> findByDoctorIdAndAppointmentTime(Long doctorId, LocalDateTime start);
+
+    List<Appointment> findByDoctor(Doctor doctor);
 
     //Appointment findByStatus(Status status);
 }

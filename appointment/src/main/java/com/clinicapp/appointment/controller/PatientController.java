@@ -1,12 +1,11 @@
 package com.clinicapp.appointment.controller;
 
-import com.clinicapp.appointment.model.Patient;
-import com.clinicapp.appointment.repository.PatientRepository;
+import com.clinicapp.appointment.dto.PatientRequest;
+import com.clinicapp.appointment.dto.PatientResponse;
 
 
-
+import com.clinicapp.appointment.service.PatientService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,24 +17,22 @@ import java.util.List;
 public class PatientController {
 
     @Autowired
-    private PatientRepository patientRepository;
+    private PatientService patientService;
 
     @PostMapping("/create")
-    public ResponseEntity<?> createPatient(@RequestBody Patient patient) {
-        return ResponseEntity.ok(patientRepository.save(patient));
+    public ResponseEntity<?> createPatient(@RequestBody PatientRequest request) {
+        return ResponseEntity.ok(patientService.createPatient(request));
         
     }
 
     @GetMapping("/getAll")
-       public List<Patient> getAllPatients() {
-        return patientRepository.findAll();
+       public List<PatientResponse> getAllPatients() {
+        return patientService.getAllPatient();
     }
 
 @GetMapping("/{id}")
 public ResponseEntity<?> getById(@PathVariable Long id) {
-    return patientRepository.findById(id)
-            .map(ResponseEntity::ok)
-            .orElse(ResponseEntity.notFound().build());
+    return  ResponseEntity.ok(patientService.getById(id));
 
 }
 

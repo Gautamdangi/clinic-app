@@ -1,8 +1,10 @@
 package com.clinicapp.appointment.controller;
 
-import com.clinicapp.appointment.model.Doctor;
-import com.clinicapp.appointment.repository.DoctorRepository;
+import com.clinicapp.appointment.dto.DoctorRequest;
+import com.clinicapp.appointment.dto.DoctorResponse;
+import com.clinicapp.appointment.service.DoctorService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,23 +14,23 @@ import java.util.List;
 @RequestMapping("/api/doctors")
 public class DoctorController {
 
+
     @Autowired
-    private DoctorRepository doctorRepository;
+    DoctorService doctorService;
 
     @PostMapping("/create")
-   public ResponseEntity<?> createDoctor(@RequestBody Doctor doctor) {
-        return ResponseEntity.ok(doctorRepository.save(doctor)); // ResponseEntity.ok(repo.save(doctor));
+   public ResponseEntity<?> createDoctor(@RequestBody DoctorRequest request) {
+        return ResponseEntity.ok(doctorService.createDoctor(request));
     }
 
     @GetMapping("/getdoctors")
-    public List<Doctor> getAllDoctors() {
-        return doctorRepository.findAll();
+    public  ResponseEntity<List<DoctorResponse>> getAllDoctors() {
+        return ResponseEntity.ok(doctorService.getAllDoctors());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@PathVariable Long id) {
-        return doctorRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<DoctorResponse> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(doctorService.getDoctorById(id));
+
     }
 }

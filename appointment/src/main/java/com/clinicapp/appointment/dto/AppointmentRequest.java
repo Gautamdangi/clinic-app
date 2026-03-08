@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class AppointmentRequest {
     private long doctorId;
-    private  long patientId;
+
     private LocalDateTime appointmentTime;
     private Status status;
 }

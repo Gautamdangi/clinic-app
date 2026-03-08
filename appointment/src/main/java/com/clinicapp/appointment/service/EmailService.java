@@ -7,6 +7,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,7 +31,7 @@ public class EmailService {
 //    }
 
 
-    public void sendAppointmentEmail(Appointment appointment) {
+    public void sendPatientEmail(Appointment appointment) {
 
         String subject = STR."Appointment\{appointment.getStatus()}";
         String msgBody = buildMsgBody(appointment);
@@ -91,6 +92,58 @@ public class EmailService {
                 appointment.getAppointmentTime(),
                 appointment.getStatus()
         );
+    }
+    @Async
+    public void sendAppointmentEmail(Appointment appointment) {
+        sendPatientEmail(appointment);
+        sendDoctorEmail(appointment);
+    }
+
+    private void sendDoctorEmail(Appointment appointment) {
+
+        String msg = """
+        <html>
+        <body>
+            <h2>New Appointment Booked</h2>
+
+            <p>Dear Dr. %s,</p>
+
+            <p>You have a new appointment.</p>
+
+            <ul>
+                <li><b>Patient:</b> %s</li>
+                <li><b>Date & Time:</b> %s</li>
+            </ul>
+
+        </body>
+        </html>
+    """.formatted(
+                appointment.getDoctor().getName(),
+                appointment.getPatient().getName(),
+                appointment.getAppointmentTime()
+        );
+
+        sendEmail(
+                appointment.getDoctor().getEmail(),
+                "New Appointment Booked",
+                msg
+        );
+    }
+    private void sendEmail(String to, String subject, String body) {
+
+        try {
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(body, true);
+
+            javaMailSender.send(mimeMessage);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 
 }

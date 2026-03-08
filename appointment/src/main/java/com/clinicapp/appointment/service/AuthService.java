@@ -56,26 +56,6 @@ public class AuthService {
             Role role = request.getRole(); // expecting client to pass ROLE_PATIENT or ROLE_DOCTOR
             user.setRole(role);
 
-            // Optionally create a Patient or Doctor profile and link
-            if (role == Role.PATIENT) {
-                Patient patient = new Patient();
-                patient.setName(request.getUsername()); // or accept more fields in DTO
-                patient.setEmail(request.getUsername());
-                patient.setPhone(request.getPhone());
-
-                patient = patientRepository.save(patient);
-                user.setPatient(patient);
-
-            }
-            else if (role == Role.DOCTOR) {
-                Doctor d = new Doctor();
-                d.setName(request.getName());
-                d.setPhone(request.getPhone());
-                d.setEmail(request.getEmail());
-                d.setSpecialization(request.getSpecialization());
-                d = doctorRepository.save(d);
-                user.setDoctor(d);
-            }
 
            User saved = userRepo.save(user);
             String token = jwtUtil.generateToken(saved.getUsername(),saved.getRole());
